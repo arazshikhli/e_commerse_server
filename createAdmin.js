@@ -20,8 +20,8 @@ const createAdmin = async () => {
   if (!adminExists) {
     const adminUser = new User({
       name: 'Admin',
-      email: 'arazaraz777@gmail.com',
-      password: 'braolgaas1900', // Пароль лучше хешировать
+      email: process.env.ADMIN_EMAIL,
+      password: process.env.ADMIN_PASSWORD, // Пароль лучше хешировать
       isAdmin: true,
     });
     await adminUser.save();
