@@ -1,8 +1,8 @@
 require('dotenv').config(); // Если используете переменные окружения
 const mongoose = require('mongoose');
-const User = require('./models/Users.js'); // Подключение модели User
+const User = require('./models/Users.js'); 
 
-// Подключение к базе данныхS
+
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: false,
   useUnifiedTopology: false,
@@ -13,7 +13,6 @@ mongoose.connect(process.env.MONGO_URI, {
   console.error('Error connecting to MongoDB:', err);
 });
 
-// Функция для создания администратора
 const createAdmin = async () => {
   const adminExists = await User.findOne({ isAdmin: true });
   
@@ -21,7 +20,7 @@ const createAdmin = async () => {
     const adminUser = new User({
       name: 'Admin',
       email: process.env.ADMIN_EMAIL,
-      password: process.env.ADMIN_PASSWORD, // Пароль лучше хешировать
+      password: process.env.ADMIN_PASSWORD, 
       isAdmin: true,
     });
     await adminUser.save();

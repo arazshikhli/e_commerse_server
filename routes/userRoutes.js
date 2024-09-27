@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const adminMiddleware=require('../middleware/adminMiddleware.js')
 
-// Регистрация
+
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
   try {
@@ -16,7 +16,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Авторизация
 router.post('/login', async (req, res) => {
 
   const { email, password } = req.body;
@@ -44,7 +43,7 @@ router.put('/:id/make-admin', adminMiddleware, async (req, res) => {
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-      // Назначаем пользователя администратором
+   
       user.isAdmin = true;
       await user.save();
       
@@ -54,15 +53,14 @@ router.put('/:id/make-admin', adminMiddleware, async (req, res) => {
     }
   });
   
-  // Защищенный маршрут для снятия прав администратора
+
   router.put('/:id/remove-admin', adminMiddleware, async (req, res) => {
     try {
       const user = await User.findById(req.params.id);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-  
-      // Снимаем права администратора
+
       user.isAdmin = false;
       await user.save();
       

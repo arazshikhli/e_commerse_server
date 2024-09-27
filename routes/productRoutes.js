@@ -22,16 +22,15 @@ router.post('/:id/comments', authMiddleware,async (req, res) => {
 
   
 
-// Оценить товар
 router.post('/:id/rating', authMiddleware,async (req, res) => {
-  const { rating } = req.body; // Рейтинг от 1 до 5
+  const { rating } = req.body; 
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    // Обновление статистики рейтингов
+ 
     product.rating.ratingsSum += rating;
     product.rating.totalRatings += 1;
     product.rating.average = product.rating.ratingsSum / product.rating.totalRatings;
@@ -43,7 +42,7 @@ router.post('/:id/rating', authMiddleware,async (req, res) => {
   }
 });
 
-// Увеличить количество просмотров товара
+
 router.post('/:id/view', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -58,7 +57,7 @@ router.post('/:id/view', async (req, res) => {
   }
 });
 
-// Увеличить количество покупок товара
+
 router.post('/:id/purchase', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);

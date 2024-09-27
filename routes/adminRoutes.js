@@ -20,12 +20,12 @@ router.get('/products', async (req, res) => {
   const skip = (page - 1) * limit;
   
   try {
-    const totalProducts = await Product.countDocuments(); // Total number of products
+    const totalProducts = await Product.countDocuments(); 
     const products = await Product.find().skip(skip).limit(parseInt(limit));
     
     res.json({
       products,
-      totalPages: Math.ceil(totalProducts / limit), // Calculate total pages
+      totalPages: Math.ceil(totalProducts / limit), 
       currentPage: page
     });
   } catch (error) {
