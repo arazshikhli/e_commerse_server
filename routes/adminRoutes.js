@@ -3,6 +3,13 @@ const Product = require('../models/Products');
 const User = require('../models/Users');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
+const {getAllProducts,
+  findProductByName,
+  getProductsByCategory,
+  getProductsByPrice,
+  getProductById
+}=require('../controllers/productControllers')
+
 
 // Middleware для проверки прав администратора
 const isAdmin = (req, res, next) => {
@@ -15,24 +22,18 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
-router.get('/products', async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
-  const skip = (page - 1) * limit;
-  
-  try {
-    const totalProducts = await Product.countDocuments(); 
-    const products = await Product.find().skip(skip).limit(parseInt(limit));
-    
-    res.json({
-      products,
-      totalPages: Math.ceil(totalProducts / limit), 
-      currentPage: page
-    });
-  } catch (error) {
-    res.status(400).json({ error: 'Error fetching products' });
-  }
-});
+router.get('/products',getAllProducts);
 
+// фильтр по имени
+router.get('/products/name/:name', findProductByName);
+
+//по категориям
+router.get('/products/category/:category', getProductsByCategory);
+
+ //price
+router.get('/products/price', getProductsByPrice);
+// получение товара по id
+router.get('/products/:id', getProductById)
 
 // Добавить новый товар
 router.post('/products', async (req, res) => {
