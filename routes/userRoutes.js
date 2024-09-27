@@ -18,16 +18,17 @@ router.post('/register', async (req, res) => {
 
 // Авторизация
 router.post('/login', async (req, res) => {
-  console.log('Login request received'); // Лог для отслеживания
-  console.log('Request body:', req.body); // Лог тела запроса
+
   const { email, password } = req.body;
-  console.log(email)
   try {
     const user = await User.findOne({ email });
+    console.log('user', Boolean(user))
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, {
         expiresIn: '1h',
       });
+      console.log("user",user);
+      
       res.json({ token });
     } else {
       res.status(401).json({ error: 'Invalid credentials' });
@@ -43,7 +44,6 @@ router.put('/:id/make-admin', adminMiddleware, async (req, res) => {
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-  
       // Назначаем пользователя администратором
       user.isAdmin = true;
       await user.save();

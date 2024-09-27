@@ -15,15 +15,49 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
+router.get('/products', async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
+  
+  try {
+    const totalProducts = await Product.countDocuments(); // Total number of products
+    const products = await Product.find().skip(skip).limit(parseInt(limit));
+    
+    res.json({
+      products,
+      totalPages: Math.ceil(totalProducts / limit), // Calculate total pages
+      currentPage: page
+    });
+  } catch (error) {
+    res.status(400).json({ error: 'Error fetching products' });
+  }
+});
+
+
 // Добавить новый товар
 router.post('/products', async (req, res) => {
-  const { name, description, price, stock, image } = req.body;
-  try {
-    const newProduct = await Product.create({ name, description, price, stock, image });
-    res.status(201).json(newProduct);
-  } catch (error) {
-    res.status(400).json({ error: 'Failed to create product' });
+  // const { name, description, price, stock, image } = req.body;
+  const {model,brand,description,price,productDetails,stock,image}=req.body
+  try{
+    const product=new Product({
+      model,
+      brand,description,
+      price,
+      stock,
+      productDetails,
+      image
+    })
+    await product.save()
+    
+    res.status(201).json({
+      message:"Product added successfully",product
+    })
+
   }
+  catch (error){
+    res.status(400).json({error:"Error adding product"})
+  }
+
 });
 
 // Удалить товар

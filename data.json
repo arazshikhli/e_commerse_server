@@ -1,0 +1,250 @@
+[
+    {
+      "model": "Samsung QLED55",
+      "brand": "SAMSUNG",
+      "description": "55-inch QLED TV with 4K resolution and Tizen Smart TV.",
+      "price": 1100,
+      "productDetails": {
+        "type": "tv",
+        "screenSize": "55 inches",
+        "resolution": "4K",
+        "smartTV": true
+      }
+    },
+    {
+      "model": "Samsung Frame65",
+      "brand": "SAMSUNG",
+      "description": "65-inch 4K TV with Art Mode for displaying artwork when not in use.",
+      "price": 2000,
+      "productDetails": {
+        "type": "tv",
+        "screenSize": "65 inches",
+        "resolution": "4K",
+        "smartTV": true
+      }
+    },
+    {
+      "model": "Samsung Neo QLED75",
+      "brand": "SAMSUNG",
+      "description": "75-inch Neo QLED TV with Quantum Mini LED and 8K resolution.",
+      "price": 3200,
+      "productDetails": {
+        "type": "tv",
+        "screenSize": "75 inches",
+        "resolution": "8K",
+        "smartTV": true
+      }
+    },
+    {
+      "model": "Samsung Crystal50",
+      "brand": "SAMSUNG",
+      "description": "50-inch Crystal UHD TV with HDR support and Tizen Smart TV.",
+      "price": 700,
+      "productDetails": {
+        "type": "tv",
+        "screenSize": "50 inches",
+        "resolution": "4K",
+        "smartTV": true
+      }
+    },
+    {
+      "model": "Samsung QLED85",
+      "brand": "SAMSUNG",
+      "description": "85-inch QLED TV with 4K resolution, Quantum HDR, and Dolby Atmos support.",
+      "price": 4000,
+      "productDetails": {
+        "type": "tv",
+        "screenSize": "85 inches",
+        "resolution": "4K",
+        "smartTV": true
+      }
+    }
+  ]
+
+
+
+  [
+
+  {
+    "model": "Samsung Galaxy S23",
+    "brand": "Samsung",
+    "description": "6.1-inch smartphone with Snapdragon 8 Gen 2, 8GB RAM, and 256GB storage.",
+    "price": 799,
+    "stock": 10,
+    "image": "https://images.samsung.com/is/image/samsung/p6p/r/2023/galaxy-s23/c/01-s23-05-1.jpg?$FB_TYPE_A_JPG$",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "6.1 inches",
+      "processor": "Snapdragon 8 Gen 2",
+      "ram": "8GB",
+      "storage": "256GB"
+    }
+  },
+  {
+    "model": "Samsung Galaxy S23 Ultra",
+    "brand": "Samsung",
+    "description": "6.8-inch smartphone with Snapdragon 8 Gen 2, 12GB RAM, and 512GB storage.",
+    "price": 1199,
+    "stock": 10,
+    "image": "https://images.samsung.com/is/image/samsung/p6p/r/2023/galaxy-s23-ultra/c/01-s23ultra-05.jpg?$FB_TYPE_A_JPG$",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "6.8 inches",
+      "processor": "Snapdragon 8 Gen 2",
+      "ram": "12GB",
+      "storage": "512GB"
+    }
+  },
+  {
+    "model": "Samsung Galaxy A54",
+    "brand": "Samsung",
+    "description": "6.4-inch smartphone with Exynos 1380, 6GB RAM, and 128GB storage.",
+    "price": 449,
+    "stock": 10,
+    "image": "https://images.samsung.com/is/image/samsung/p6p/r/2023/galaxy-a54/c/01-a54-05.jpg?$FB_TYPE_A_JPG$",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "6.4 inches",
+      "processor": "Exynos 1380",
+      "ram": "6GB",
+      "storage": "128GB"
+    }
+  },
+  {
+    "model": "Samsung Galaxy Z Flip4",
+    "brand": "Samsung",
+    "description": "6.7-inch foldable smartphone with Snapdragon 8+ Gen 1, 8GB RAM, and 256GB storage.",
+    "price": 999,
+    "stock": 10,
+    "image": "https://images.samsung.com/is/image/samsung/p6p/r/2023/galaxy-z-flip4/c/01-flip4-05.jpg?$FB_TYPE_A_JPG$",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "6.7 inches",
+      "processor": "Snapdragon 8+ Gen 1",
+      "ram": "8GB",
+      "storage": "256GB"
+    }
+  },
+  {
+    "model": "Samsung Galaxy Z Fold4",
+    "brand": "Samsung",
+    "description": "7.6-inch foldable smartphone with Snapdragon 8+ Gen 1, 12GB RAM, and 512GB storage.",
+    "price": 1799,
+    "stock": 10,
+    "image": "https://images.samsung.com/is/image/samsung/p6p/r/2023/galaxy-z-fold4/c/01-fold4-05.jpg?$FB_TYPE_A_JPG$",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "7.6 inches",
+      "processor": "Snapdragon 8+ Gen 1",
+      "ram": "12GB",
+      "storage": "512GB"
+    }
+  },
+  {
+    "model": "Samsung Galaxy A34",
+    "brand": "Samsung",
+    "description": "6.6-inch smartphone with Dimensity 1080, 8GB RAM, and 128GB storage.",
+    "price": 349,
+    "stock": 10,
+    "image": "https://images.samsung.com/is/image/samsung/p6p/r/2023/galaxy-a34/c/01-a34-05.jpg?$FB_TYPE_A_JPG$",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "6.6 inches",
+      "processor": "Dimensity 1080",
+      "ram": "8GB",
+      "storage": "128GB"
+    }
+  },
+  {
+    "model": "Samsung Galaxy M54",
+    "brand": "Samsung",
+    "description": "6.7-inch smartphone with Exynos 1380, 8GB RAM, and 128GB storage.",
+    "price": 399,
+    "stock": 10,
+    "image": "https://images.samsung.com/is/image/samsung/p6p/r/2023/galaxy-m54/c/01-m54-05.jpg?$FB_TYPE_A_JPG$",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "6.7 inches",
+      "processor": "Exynos 1380",
+      "ram": "8GB",
+      "storage": "128GB"
+    }
+  },
+  {
+    "model": "Samsung Galaxy A14",
+    "brand": "Samsung",
+    "description": "6.6-inch smartphone with Exynos 1330, 4GB RAM, and 64GB storage.",
+    "price": 249,
+    "stock": 10,
+    "image": "https://images.samsung.com/is/image/samsung/p6p/r/2023/galaxy-a14/c/01-a14-05.jpg?$FB_TYPE_A_JPG$",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "6.6 inches",
+      "processor": "Exynos 1330",
+      "ram": "4GB",
+      "storage": "64GB"
+    }
+  },
+  {
+    "model": "Samsung Galaxy F54",
+    "brand": "Samsung",
+    "description": "6.7-inch smartphone with Exynos 1380, 8GB RAM, and 128GB storage.",
+    "price": 399,
+    "stock": 10,
+    "image": "https://images.samsung.com/is/image/samsung/p6p/r/2023/galaxy-f54/c/01-f54-05.jpg?$FB_TYPE_A_JPG$",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "6.7 inches",
+      "processor": "Exynos 1380",
+      "ram": "8GB",
+      "storage": "128GB"
+    }
+  },
+  {
+    "model": "Samsung Galaxy A04",
+    "brand": "Samsung",
+    "description": "6.5-inch smartphone with Unisoc SC9863, 3GB RAM, and 32GB storage.",
+    "price": 179,
+    "stock": 10,
+    "image": "https://images.samsung.com/is/image/samsung/p6p/r/2023/galaxy-a04/c/01-a04-05.jpg?$FB_TYPE_A_JPG$",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "6.5 inches",
+      "processor": "Unisoc SC9863",
+      "ram": "3GB",
+      "storage": "32GB"
+    }
+  },
+  
+  // iPhone
+  {
+    "model": "iPhone 14 Pro",
+    "brand": "Apple",
+    "description": "6.1-inch smartphone with A16 Bionic, 6GB RAM, and up to 1TB storage.",
+    "price": 999,
+    "stock": 10,
+    "image": "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-14-pro-space-gray-select?wid=1200&hei=630&fmt=jpeg&qlt=95&.v=1664424002345",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "6.1 inches",
+      "processor": "A16 Bionic",
+      "ram": "6GB",
+      "storage": "up to 1TB"
+    }
+  },
+  {
+    "model": "iPhone 14 Pro Max",
+    "brand": "Apple",
+    "description": "6.7-inch smartphone with A16 Bionic, 6GB RAM, and up to 1TB storage.",
+    "price": 1099,
+    "stock": 10,
+    "image": "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/iphone-14-pro-max-space-gray-select?wid=1200&hei=630&fmt=jpeg&qlt=95&.v=1664424002345",
+    "productDetails": {
+      "type": "mobile",
+      "screenSize": "6.7 inches",
+      "processor": "A16 Bionic",
+      "ram": "6GB",
+      "storage": "up to 1TB"
+    }
+  },
+  ]
