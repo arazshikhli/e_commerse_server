@@ -8,14 +8,47 @@ const adminMiddleware=require('../middleware/adminMiddleware.js')
 
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
+
   try {
-    const user = await User.create({ name, email, password });
-    res.status(201).json({ message: 'User registered', user });
+    // Проверка на существование пользователя с таким же email
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already in use' });
+    }
+
+    // Хешируем пароль перед сохранением
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Создаем нового пользователя
+    const newUser = await User.create({ name, email, password: hashedPassword,isAdmin:false });
+
+    // Генерируем JWT токен
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email, isAdmin: false }, // Параметры токена
+      process.env.JWT_SECRET, // Секретный ключ для подписи токена (должен быть в переменных окружения)
+      { expiresIn: '1h' } // Время действия токена
+    );
+
+    // Возвращаем ответ с токеном
+    res.status(201).json({
+      message: 'User registered',
+      token, // Отправляем токен клиенту
+      user: { id: newUser._id, name: newUser.name, email: newUser.email },
+    });
+    
   } catch (error) {
+    console.error(error);
     res.status(400).json({ error: 'User registration failed' });
   }
 });
 
+router.get('/users',async(req,res)=>{
+    const allUsers=await User.find()
+    if(!allUsers) return res.status(400).json({
+      message:'No users'
+    })
+    res.json({users:allUsers})
+})
 router.post('/login', async (req, res) => {
 
   const { email, password } = req.body;
