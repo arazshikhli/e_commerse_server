@@ -1,7 +1,6 @@
-require('dotenv').config(); // Если используете переменные окружения
+require('dotenv').config(); 
 const mongoose = require('mongoose');
 const User = require('./models/Users.js'); 
-
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: false,
@@ -19,8 +18,8 @@ const createAdmin = async () => {
   if (!adminExists) {
     const adminUser = new User({
       name: 'Admin',
-      email: process.env.ADMIN_EMAIL,
-      password: process.env.ADMIN_PASSWORD, 
+      email: "admin@gmail.com",
+      password: 'admin123', 
       isAdmin: true,
     });
     await adminUser.save();
