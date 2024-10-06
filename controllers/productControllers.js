@@ -1,11 +1,11 @@
 const express = require('express');
 // const Product = require('../models/Products');
 const User = require('../models/Users');
-const Cart=require('../models/Products')
+// const Cart=require('../models/Products')
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const ProductModel=require('../models/ProductModel')
-const {MobileSchema,TVSchema,LaptopSchema}=require('../models/Products')
+const {MobileSchema,TVSchema,LaptopSchema,Cart}=require('../models/Products')
 const cloudinary = require('../config/cloudinary');
 
 const path=require('path')
@@ -62,47 +62,62 @@ const createProduct = async (req, res) => {
     res.status(500).json({ error: 'Ошибка при создании продукта. Попробуйте еще раз.' });
   }
 };
-
 const getAllProducts = async (req, res) => {
   try {
-    // Получаем все продукты для каждой категории
-    const tvs = await TVSchema.find();
-    const mobiles = await MobileSchema.find();
-    const laptops = await LaptopSchema.find();
+    // Получаем данные из всех коллекций параллельно
+    const [tvs, mobiles, laptops] = await Promise.all([
+      TVSchema.find({}),      // Получаем все ТВ продукты
+      MobileSchema.find({}),   // Получаем все мобильные продукты
+      LaptopSchema.find({})    // Получаем все ноутбуки
+    ]);
 
     // Объединяем все продукты в один массив
     const allProducts = [
-      ...tvs.map((product) => ({ categoryName: 'TV', ...product._doc })),
-      ...mobiles.map((product) => ({ categoryName: 'Mobile', ...product._doc })),
-      ...laptops.map((product) => ({ categoryName: 'Laptop', ...product._doc })),
+      ...tvs.map(tv => ({ ...tv.toObject(), categoryName: 'TV' })),          // Добавляем поле "categoryName" для каждого продукта
+      ...mobiles.map(mobile => ({ ...mobile.toObject(), categoryName: 'Mobile' })),
+      ...laptops.map(laptop => ({ ...laptop.toObject(), categoryName: 'Laptop' }))
     ];
 
+    // Возвращаем все продукты в ответе
     res.status(200).json(allProducts);
+
   } catch (error) {
     console.error('Ошибка при получении продуктов:', error);
     res.status(500).json({ error: 'Ошибка при получении продуктов. Попробуйте еще раз.' });
   }
 };
+const getCart = async (req, res) => {
+  const { userId } = req.params;
 
+  try {
+    // Находим корзину пользователя по userId
+    console.log(Cart.user)
+    const cart = await Cart.findOne({ user: userId }).populate('items.productId');
 
+    if (!cart) {
+      return res.status(404).json({ message: 'Корзина не найдена' });
+    }
+
+    res.status(200).json(cart);
+  } catch (error) {
+    console.error('Ошибка при получении корзины:', error);
+    res.status(500).json({ message: 'Не удалось получить корзину' });
+  }
+};
 
 const addToCart = async (req, res) => {
   const { userId, productId, productType, quantity } = req.body;
 
   try {
-    let productModel;
-    switch (productType) {
-      case 'TV':
-        productModel = TVSchema;
-        break;
-      case 'Mobile':
-        productModel = MobileSchema;
-        break;
-      case 'Laptop':
-        productModel = LaptopSchema;
-        break;
-      default:
-        return res.status(400).json({ error: 'Invalid product type' });
+    const productModelMap = {
+      TV: TVSchema,
+      Mobile: MobileSchema,
+      Laptop: LaptopSchema,
+    };
+
+    const productModel = productModelMap[productType];
+    if (!productModel) {
+      return res.status(400).json({ error: 'Invalid product type' });
     }
 
     const product = await productModel.findById(productId);
@@ -110,24 +125,28 @@ const addToCart = async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    // Допустим, у вас есть модель Cart для корзины
-    const cart = await Cart.findOne({ user: userId });
+    // Поиск существующей корзины пользователя
+    let cart = await Cart.findOne({ user: userId });
     if (!cart) {
-      const newCart = new Cart({
+      // Создание новой корзины, если её нет
+      cart = new Cart({
         user: userId,
         items: [{ productId, productType, quantity }],
       });
-      await newCart.save();
-      return res.status(201).json(newCart);
+      await cart.save();
+      return res.status(201).json(cart);
     }
 
+    // Поиск товара в корзине
     const existingItem = cart.items.find(
       (item) => item.productId.toString() === productId && item.productType === productType
     );
 
     if (existingItem) {
+      // Обновление количества, если товар уже есть в корзине
       existingItem.quantity += quantity;
     } else {
+      // Добавление нового товара в корзину
       cart.items.push({ productId, productType, quantity });
     }
 
@@ -138,6 +157,7 @@ const addToCart = async (req, res) => {
     res.status(500).json({ error: 'Failed to add product to cart. Please try again.' });
   }
 };
+
 
 const addComment = async (req, res) => {
   const { model, productType, user, commentText } = req.body;
@@ -223,7 +243,9 @@ const getComments = async (req, res) => {
 };
 
 const createProductWithImage = async (req, res) => {
-  const { categoryName,images } = req.body.newData;
+  const { categoryName,images } = req.body;
+ 
+  
   let savedProduct;
   let cloudinaryResponses=[];
 
@@ -244,14 +266,13 @@ const createProductWithImage = async (req, res) => {
             })
         } 
       }
-      console.log(cloudinaryResponses)
      }
 
   
 
       switch (categoryName) {
         case 'TV': {
-          const { brand, model, price, description, screenSize, resolution, stock, smartTV, comments = [] } = req.body.newData;
+          const { brand, model, price, description, screenSize, resolution, stock, smartTV, comments = [] } = req.body;
           const newTV = new TVSchema({
             brand, model, price, description, imageURL:cloudinaryResponses, screenSize, resolution, stock, smartTV, comments,
           });
@@ -259,7 +280,7 @@ const createProductWithImage = async (req, res) => {
           break;
         }
         case 'Mobile': {
-          const { brand, model, storage, price, description, screenSize, ram, processor, stock, comments = [] } = req.body.newData;
+          const { brand, model, storage, price, description, screenSize, ram, processor, stock, comments = [] } = req.body;
           const newMobile = new MobileSchema({
             brand, model, price, description, imageURL:cloudinaryResponses, screenSize, ram, processor, stock, storage, comments,
           });
@@ -267,7 +288,7 @@ const createProductWithImage = async (req, res) => {
           break;
         }
         case 'Laptop': {
-          const { brand, model, storage, price, description, screenSize, ram, processor, graphicsCard, stock, comments = [] } = req.body.newData;
+          const { brand, model, storage, price, description, screenSize, ram, processor, graphicsCard, stock, comments = [] } = req.body;
           const newLaptop = new LaptopSchema({
             brand, model, price, description, imageURL:cloudinaryResponses, screenSize, ram, processor, storage, graphicsCard, stock, comments,
           });
@@ -276,85 +297,52 @@ const createProductWithImage = async (req, res) => {
         }
       }
 
-      res.status(201).json(savedProduct);
+      res.status(201).json({message:'Product added successfully'});
 
   } catch (error) {
     console.error('Ошибка при создании продукта:', error);
     res.status(500).json({ error: 'Ошибка при создании продукта. Попробуйте еще раз.' });
   }
 };
-//  const getAllProducts=async(req,res)=>{
-//     const { page = 1, limit = 10 } = req.query;
-//     const skip = (page - 1) * limit;
+
+
+const getProductById = async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    // Получаем данные из всех коллекций параллельно
+    const [tv, mobile, laptop] = await Promise.all([
+      TVSchema.findById(id),       // Получаем продукт TV по ID
+      MobileSchema.findById(id),   // Получаем мобильный продукт по ID
+      LaptopSchema.findById(id)    // Получаем ноутбук по ID
+    ]);
     
-//     try {
-//       const totalProducts = await Product.countDocuments(); 
-//       const products = await Product.find().skip(skip).limit(parseInt(limit));
-      
-//       res.json({
-//         products,
-//         totalPages: Math.ceil(totalProducts / limit), 
-//         currentPage: page
-//       });
-//     } catch (error) {
-//       res.status(400).json({ error: 'Error fetching products' });
-//     }
-// }
+    // Проверяем, существует ли продукт в одной из коллекций
+    if (!tv && !mobile && !laptop) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
 
-
-// const findProductByName=async(req,res)=>{
-//   const { name } = req.params;
-
-//   try {
-//     const products = await Product.find({ name: { $regex: name, $options: 'i' } }); // Регистронезависимый поиск
-//     res.json(products);
-//   } catch (error) {
-//     res.status(400).json({ error: 'Error fetching products by name' });
-//   }
-// }
-
-// const getProductsByCategory=async(req,res)=>{
-//   const { category } = req.params;
-
-//   try {
-//     const products = await Product.find({ category });
-//     res.json(products);
-//   } catch (error) {
-//     res.status(400).json({ error: 'Error fetching products by category' });
-//   }
-// }
-
-// const getProductsByPrice=async(req,res)=>{
-//   const { minPrice = 0, maxPrice = 10000 } = req.query;
-
-//   try {
-//     const products = await Product.find({
-//       price: { $gte: parseFloat(minPrice), $lte: parseFloat(maxPrice) }
-//     });
-//     res.json(products);
-//   } catch (error) {
-//     res.status(400).json({ error: 'Error fetching products by price' });
-//   }
-// }
-
-// const getProductById=async(req,res)=>{
-//   const {id}=req.params;
-
-//   try {
-//     const product = await Product.findById(id); 
-//     if (!product) {
-//       return res.status(404).json({ error: 'Product not found' }); 
-//     }
-//     res.json(product); 
-//   } catch (error) {
-//     res.status(400).json({ error: 'Error fetching product by ID' }); 
-//   }
-// }
+    // Возвращаем найденный продукт
+    if (tv) {
+      return res.json(tv);
+    } else if (mobile) {
+      return res.json(mobile);
+    } else if (laptop) {
+      return res.json(laptop);
+    }
+  } catch (error) {
+    console.error('Error fetching product by ID:', error);
+    return res.status(400).json({ error: 'Error fetching product by ID' });
+  }
+};
 
 
 module.exports = {
   createProduct,
   getAllProducts,addComment,
   getComments,
-  createProductWithImage
+  createProductWithImage,
+  getProductById,
+  addToCart,
+  getCart
 };

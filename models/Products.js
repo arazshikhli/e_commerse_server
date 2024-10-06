@@ -13,6 +13,7 @@ const cartSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+
 // Add pre-save hook to update `updatedAt` on each save
 cartSchema.pre('save', function(next) {
   this.updatedAt = Date.now();

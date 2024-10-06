@@ -6,7 +6,9 @@ const jwt = require('jsonwebtoken');
 const {addNewModel,showAllModels, showAllModelNames,}=require('../controllers/modelController')
 const router = express.Router();
 const {
-  createProduct,getAllProducts,addComment,getComments,createProductWithImage
+  getProductById,getAllProducts,addComment,getComments,createProductWithImage,
+  addToCart,
+  getCart
 }=require('../controllers/productControllers')
 
 
@@ -29,6 +31,9 @@ router.post('/products',createProductWithImage)
 router.get('/products',getAllProducts)
 router.post('/:id/comments',addComment)
 router.get('/comments/:productType/:model',getComments)
+router.get('/products/:id',getProductById)
+router.post('/cart/add',addToCart)
+router.get('/cart/:userId',getCart)
 // router.get('/products',getAllProducts);
 
 // // фильтр по имени

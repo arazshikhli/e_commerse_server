@@ -70,7 +70,9 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.put('/:id/make-admin', adminMiddleware, async (req, res) => {
+router.put('/:id/make-admin', adminMiddleware,async (req, res) => {
+  console.log('req',req.params);
+  
     try {
       const user = await User.findById(req.params.id);
       if (!user) {
@@ -79,6 +81,7 @@ router.put('/:id/make-admin', adminMiddleware, async (req, res) => {
    
       user.isAdmin = true;
       await user.save();
+      console.log('makeAdmin: ',user.name);
       
       res.json({ message: 'User promoted to admin successfully' });
     } catch (error) {
@@ -87,7 +90,7 @@ router.put('/:id/make-admin', adminMiddleware, async (req, res) => {
   });
   
 
-  router.put('/:id/remove-admin', adminMiddleware, async (req, res) => {
+  router.put('/:id/remove-admin', async (req, res) => {
     try {
       const user = await User.findById(req.params.id);
       if (!user) {
@@ -96,7 +99,7 @@ router.put('/:id/make-admin', adminMiddleware, async (req, res) => {
 
       user.isAdmin = false;
       await user.save();
-      
+      console.log('makeuser: ',user.name);
       res.json({ message: 'Admin rights removed successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Error updating user role', error });
