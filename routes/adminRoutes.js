@@ -8,7 +8,8 @@ const router = express.Router();
 const {
   getProductById,getAllProducts,addComment,getComments,createProductWithImage,
   addToCart,
-  getCart
+  getCart,
+  updateCartItemQuantity
 }=require('../controllers/productControllers')
 
 
@@ -34,6 +35,7 @@ router.get('/comments/:productType/:model',getComments)
 router.get('/products/:id',getProductById)
 router.post('/cart/add',addToCart)
 router.get('/cart/:userId',getCart)
+router.put('/cart/update',updateCartItemQuantity)
 // router.get('/products',getAllProducts);
 
 // // фильтр по имени

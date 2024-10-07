@@ -134,7 +134,7 @@ const addToCart = async (req, res) => {
         items: [{ productId, productType, quantity }],
       });
       await cart.save();
-      return res.status(201).json(cart);
+      return res.status(201).json({data:cart});
     }
 
     // Поиск товара в корзине
@@ -158,6 +158,49 @@ const addToCart = async (req, res) => {
   }
 };
 
+const updateCartItemQuantity = async (req, res) => {
+  const { userId, productId, productType, quantity } = req.body;
+
+  console.log('productId', productId)
+  console.log('userid',userId);
+  
+  try {
+    // Поиск корзины пользователя
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) {
+      return res.status(404).json({ error: 'Cart not found' });
+    }
+
+    // Поиск товара в корзине
+    const existingItem = cart.items.find(
+      (item) => {
+          console.log(`Checking item: ${item.productId.toString()} against productId: ${productId} and productType: ${item.productType}`);
+          return item.productId.toString() === productId && item.productType === productType;
+      }
+  );
+
+    if (!existingItem) {
+      return res.status(404).json({ error: 'Product not found in cart' });
+    }
+
+    // Обновление количества товара
+    if (quantity <= 0) {
+      // Удаление товара из корзины, если количество меньше или равно нулю
+      cart.items = cart.items.filter(item => item.productId.toString() !== productId || item.productType !== productType);
+    } else {
+      // Установка нового количества
+      existingItem.quantity = quantity;
+    }
+
+    await cart.save();
+    res.status(200).json(cart);
+  } catch (error) {
+    console.error('Error updating cart item quantity:', error);
+    res.status(500).json({ error: 'Failed to update product quantity in cart. Please try again.' });
+  }
+};
+
+// Экспортируйте контроллер
 
 const addComment = async (req, res) => {
   const { model, productType, user, commentText } = req.body;
@@ -344,5 +387,6 @@ module.exports = {
   createProductWithImage,
   getProductById,
   addToCart,
-  getCart
+  getCart,
+  updateCartItemQuantity
 };
