@@ -70,6 +70,14 @@ const mobileSchema = new mongoose.Schema({
   ram: { type: String, required: true },
   processor: { type: String, required: true },
   storage: { type: String, required: true },
+  battery:{type:String,required:true},
+  operatingSystem:{type:String,required:true},
+
+  displayType:{type:String,required:true},
+  batteryCapacity:{type:String,required:true},
+  weight:{type:String,required:true},
+  network:{type:String,required:true},
+
   categoryName:{type:String,default:'Mobile'},
   comments: {
     type: [commentSchema], // Определяем как массив схемы комментариев

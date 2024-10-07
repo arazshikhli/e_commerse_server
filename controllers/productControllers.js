@@ -33,11 +33,16 @@ const createProduct = async (req, res) => {
       case 'Mobile':{
         const { brand, model,storage, price,
           description, imageURL, screenSize,
-           ram, processor, stock
+           ram, processor, stock,
+           battery,operatingSystem,
+           displayType,batteryCapacity,weight,network
           ,comments=[]} = req.body;
+          console.log(req.body);
+          
         const newMobile= new MobileSchema({
           brand, model,price,description,imageURL,screenSize,
-          ram,processor,stock,storage,comments
+          ram,processor,stock,storage,comments,  battery,operatingSystem,
+          displayType,batteryCapacity,weight,network
         })
         savedProduct=await newMobile.save();
         break;
@@ -323,9 +328,11 @@ const createProductWithImage = async (req, res) => {
           break;
         }
         case 'Mobile': {
-          const { brand, model, storage, price, description, screenSize, ram, processor, stock, comments = [] } = req.body;
+          const { brand, model, storage, price, description, screenSize, ram, processor, stock, comments = [],  battery,operatingSystem,
+            displayType,batteryCapacity,weight,network } = req.body;
           const newMobile = new MobileSchema({
-            brand, model, price, description, imageURL:cloudinaryResponses, screenSize, ram, processor, stock, storage, comments,
+            brand, model, price, description, imageURL:cloudinaryResponses, screenSize, ram, processor, stock, storage, comments,  battery,operatingSystem,
+            displayType,batteryCapacity,weight,network
           });
           savedProduct = await newMobile.save();
           break;
