@@ -8,7 +8,7 @@ const adminRoutes = require('./routes/adminRoutes.js');
 const app = express();
 
 const corsOptions = {
-  origin: 'http://localhost:3000', // Разрешаем всем доменам
+  origin: process.env.FRONT_URL||'http://localhost:3000', // Разрешаем всем доменам
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Разрешаем эти методы
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials:true // Разрешаем заголовки
