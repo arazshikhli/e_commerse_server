@@ -8,13 +8,15 @@ const adminRoutes = require('./routes/adminRoutes.js');
 const app = express();
 
 const corsOptions = {
-  origin: '*', // Разрешаем всем доменам
+  origin: 'http://localhost:3000', // Разрешаем всем доменам
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Разрешаем эти методы
-  allowedHeaders: ['Content-Type', 'Authorization'], // Разрешаем заголовки
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials:true // Разрешаем заголовки
 };
 // Middlewares
 app.use(express.json({limit:'100mb'}));
 app.use(cors(corsOptions))
+
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {

@@ -1,6 +1,7 @@
 require('dotenv').config(); 
 const mongoose = require('mongoose');
 const User = require('./models/Users.js'); 
+const bcrypt = require('bcryptjs');
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: false,
@@ -16,6 +17,9 @@ const createAdmin = async () => {
   const adminExists = await User.findOne({ isAdmin: true });
   
   if (!adminExists) {
+    const password='admin123'
+    const salt=await bcrypt.genSalt(10);
+    const hashedPassword= bcrypt.hashSync(password,salt)
     const adminUser = new User({
       name: 'Admin',
       email: "admin@gmail.com",

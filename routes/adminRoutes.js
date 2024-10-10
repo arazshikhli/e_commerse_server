@@ -9,7 +9,8 @@ const {
   getProductById,getAllProducts,addComment,getComments,createProductWithImage,
   addToCart,
   getCart,
-  updateCartItemQuantity
+  updateCartItemQuantity,
+  viewsСounter
 }=require('../controllers/productControllers')
 
 
@@ -36,6 +37,7 @@ router.get('/products/:id',getProductById)
 router.post('/cart/add',addToCart)
 router.get('/cart/:userId',getCart)
 router.put('/cart/update',updateCartItemQuantity)
+router.post('/:id/view', viewsСounter);
 // router.get('/products',getAllProducts);
 
 // // фильтр по имени

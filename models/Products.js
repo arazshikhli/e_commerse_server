@@ -13,6 +13,23 @@ const cartSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+const cartItemSchema = new mongoose.Schema({
+  productId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    required: true, 
+    refPath: 'productType' // Динамическая ссылка на модель в зависимости от типа продукта
+  },
+  productType: { 
+    type: String, 
+    required: true, 
+    enum: ['Mobile', 'TV', 'Laptop'] // Перечисление возможных типов продуктов
+  },
+  quantity: { 
+    type: Number, 
+    required: true, 
+    default: 1 
+  },
+});
 
 // Add pre-save hook to update `updatedAt` on each save
 cartSchema.pre('save', function(next) {
@@ -98,6 +115,13 @@ const laptopSchema = new mongoose.Schema({
   processor: { type: String, required: true },
   storage: { type: String, required: true },
   graphicsCard:{type:String,required:true},
+  operatingSystem:{type:String,required:true},
+  WiFi:{type:String,required:true},
+  webCamera:{type:String,required:true},
+  display:{type:String,required:true},
+  weight:{type:String,required:true},
+  usb:{type:String,required:true},
+  battery:{type:String,required:true},
   categoryName:{type:String,default:'Laptop'},
   comments: {
     type: [commentSchema], // Определяем как массив схемы комментариев
@@ -107,12 +131,12 @@ const laptopSchema = new mongoose.Schema({
 
 
 // const CommentSchema = mongoose.model('Comments', commentSchema);
-const Cart = mongoose.model('Cart', cartSchema);
+const CartSchema = mongoose.model('Cart', cartSchema);
 const MobileSchema=mongoose.model('Mobile',mobileSchema);
 const LaptopSchema=mongoose.model('Laptop',laptopSchema);
 const TVSchema=mongoose.model('TV',tvSchema)
 const Product = mongoose.model('Product', productSchema);
-module.exports = {MobileSchema,LaptopSchema,TVSchema,Product,commentSchema,Cart};
+module.exports = {MobileSchema,LaptopSchema,TVSchema,Product,commentSchema,CartSchema,cartItemSchema};
 
 
 
