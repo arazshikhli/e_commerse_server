@@ -8,14 +8,28 @@ const adminRoutes = require('./routes/adminRoutes.js');
 const app = express();
 
 const corsOptions = {
-  origin: process.env.FRONT_URL||'http://localhost:3000', // Разрешаем всем доменам
+  origin: process.env.FRONT_URL||'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Разрешаем эти методы
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials:true // Разрешаем заголовки
 };
 // Middlewares
 app.use(express.json({limit:'100mb'}));
-app.use(cors(corsOptions))
+const allowedOrigins = ['https://e-commerse-front-sigma.vercel.app', 'http://localhost:3000'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Проверка, если запрос идет с разрешенного домена
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // если используете куки или авторизацию
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Разрешаем эти методы
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 
 // MongoDB connection
