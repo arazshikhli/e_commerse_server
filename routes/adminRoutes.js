@@ -10,7 +10,8 @@ const {
   addToCart,
   getCart,
   updateCartItemQuantity,
-  viewsСounter
+  viewsСounter,
+  getCartProducts
 }=require('../controllers/productControllers')
 
 
@@ -36,6 +37,7 @@ router.get('/comments/:productType/:model',getComments)
 router.get('/products/:id',getProductById)
 router.post('/cart/add',addToCart)
 router.get('/cart/:userId',getCart)
+router.get('/carts/:userId',getCartProducts)
 router.put('/cart/update',updateCartItemQuantity)
 router.post('/:id/view', viewsСounter);
 // router.get('/products',getAllProducts);

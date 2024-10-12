@@ -11,7 +11,7 @@ const generateAccessToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email, isAdmin: user.isAdmin },
     process.env.JWT_SECRET, 
-    { expiresIn: '1h' } 
+    { expiresIn: '1m' } 
   );
 };
 
@@ -45,7 +45,12 @@ router.post('/register', async (req, res) => {
     const accessToken = generateAccessToken(newUser);
     const refreshToken = generateRefreshToken(newUser);
 
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true, 
+      secure: false, // true для HTTPS
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.status(201).json({
       message: 'User registered',
@@ -78,7 +83,12 @@ console.log("Email",email);
       const accessToken = generateAccessToken(user);
       const refreshToken = generateRefreshToken(user);
 
-      res.cookie('refreshToken', refreshToken, { httpOnly: false, secure: false });
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true, 
+        secure: false, // true для HTTPS
+        sameSite: 'None',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
       res.json({ accessToken, refreshToken });
     } else {
       res.status(401).json({ error: 'Invalid credentials' });
@@ -100,9 +110,10 @@ router.get('/users',async(req,res)=>{
 
 
 router.post('/refresh-token', (req, res) => {
-  console.log('refres')
+
   const refreshToken = req.cookies.refreshToken; 
 
+  console.log('refres')
   if (!refreshToken) {
     return res.status(401).json({ error: 'No refresh token provided' });
   }

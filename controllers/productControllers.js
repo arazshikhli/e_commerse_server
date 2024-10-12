@@ -37,6 +37,51 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const getCartProducts = async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ message: "Login or register to make a cart" });
+  }
+
+  try {
+    // Находим пользователя и его корзину
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!user.cart || user.cart.length === 0) {
+      return res.status(404).json({ message: 'Cart is empty' });
+    }
+
+    // Извлекаем все productId из корзины
+    const productIds = user.cart.map(cartItem => cartItem.productId);
+
+    // Находим продукты по productIds из разных коллекций
+    const tvProducts = await TVSchema.find({ _id: { $in: productIds } });
+    const mobileProducts = await MobileSchema.find({ _id: { $in: productIds } });
+    const desktopProducts = await LaptopSchema.find({ _id: { $in: productIds } });
+
+    // Объединяем все найденные продукты в один массив
+    const products = [...tvProducts, ...mobileProducts, ...desktopProducts];
+
+    // Сопоставляем продукты с корзиной пользователя для получения количества
+    const fullCart = user.cart.map(cartItem => {
+      const product = products.find(p => p._id.toString() === cartItem.productId.toString());
+      return {
+        product,
+        quantity: cartItem.quantity,
+      };
+    }).filter(item => item.product); // Фильтруем те элементы, для которых продукты найдены
+
+    res.status(200).json(fullCart);
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    res.status(500).json({ message: 'Failed to retrieve cart' });
+  }
+};
 const getCart = async (req, res) => {
   const { userId } = req.params;
 
@@ -400,5 +445,6 @@ module.exports = {
   addToCart,
   getCart,
   updateCartItemQuantity,
-  viewsСounter
+  viewsСounter,
+  getCartProducts
 };
