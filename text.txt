@@ -1,0 +1,5 @@
+MONGO_URI=mongodb+srv://arazaraz777:braolgaas1900@cluster0.n4v9x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+PORT=5000
+JWT_SECRET=djhfkjasdhfjkdszghfjkz
+JWT_REFRESH_SECRET=sdhagjsrguihzxvjzxcbvzxmnbvjkzbvj,hzbvj,bdv,jzvbbhjbvjvbvb
+FRONT_URL=http://localhost:3000
