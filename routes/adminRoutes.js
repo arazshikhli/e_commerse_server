@@ -11,7 +11,10 @@ const {
   getCart,
   updateCartItemQuantity,
   viewsСounter,
-  getCartProducts
+  getCartProducts,
+  getFilteredProducts,
+  getProductsByCategory,
+  deleteSelectedProducts
 }=require('../controllers/productControllers')
 
 
@@ -32,6 +35,7 @@ router.get('/models',showAllModels)
 router.get('/modelsnames',showAllModelNames)
 router.post('/products',createProductWithImage)
 router.get('/products',getAllProducts)
+// router.get('/products/filter',getFilteredProducts)
 router.post('/:id/comments',addComment)
 router.get('/comments/:productType/:model',getComments)
 router.get('/products/:id',getProductById)
@@ -40,7 +44,10 @@ router.get('/cart/:userId',getCart)
 router.get('/carts/:userId',getCartProducts)
 router.put('/cart/update',updateCartItemQuantity)
 router.post('/:id/view', viewsСounter);
-// router.get('/products',getAllProducts);
+router.get('/productsByCategory/:category',getProductsByCategory)
+router.get('/products',getAllProducts);
+router.delete('/products',deleteSelectedProducts)
+
 
 // // фильтр по имени
 // router.get('/products/name/:name', findProductByName);

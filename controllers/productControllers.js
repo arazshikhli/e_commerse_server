@@ -37,6 +37,56 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const getFilteredProducts=async(req,res)=>{
+
+}
+const deleteSelectedProducts=async(req,res)=>{
+  const { ids } = req.body;
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ message: 'Некорректный массив ID' });
+  }
+  try {
+    const deletedProducts = await MobileSchema.deleteMany({ _id: { $in: ids } });
+    res.status(200).json({ message: `${deletedProducts.deletedCount} продуктов успешно удалено` });
+  } catch (error) {
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+}
+const getProductsByCategory = async (req, res) => {
+  const { category } = req.params; // Извлекаем category из параметров URL
+  let products;
+
+  console.log(category)
+  try {
+    switch (category) {
+      case 'Mobile': {
+        products = await MobileSchema.find({}); // Асинхронный запрос к базе данных
+        break;
+      }
+      case 'TV': {
+        product = await TVSchema.find({});
+        break;
+      }
+      case 'Laptop': {
+        product = await LaptopSchema.find({});
+        break;
+      }
+      default: {
+        return res.status(400).json({ message: "Category not found" }); // Возвращаем ошибку, если категория не найдена
+      }
+    }
+
+    // Возвращаем результат
+    return res.status(200).json( products );
+
+  } catch (error) {
+    // Обработка ошибок
+    console.error('Ошибка при получении продуктов:', error);
+    return res.status(500).json({ message: 'Ошибка сервера. Попробуйте еще раз.' });
+  }
+};
+
+
 const getCartProducts = async (req, res) => {
   const { userId } = req.params;
 
@@ -446,5 +496,7 @@ module.exports = {
   getCart,
   updateCartItemQuantity,
   viewsСounter,
-  getCartProducts
+  getCartProducts,
+  getProductsByCategory,
+  deleteSelectedProducts
 };
