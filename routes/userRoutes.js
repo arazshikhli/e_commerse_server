@@ -11,7 +11,7 @@ const generateAccessToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email, isAdmin: user.isAdmin },
     process.env.JWT_SECRET, 
-    { expiresIn: '1m' } 
+    { expiresIn: '40000' } 
   );
 };
 
@@ -39,7 +39,7 @@ router.post('/register', async (req, res) => {
 
 
     const newUser = await User.create({
-      name, email, password: password, isAdmin: false 
+      name, email, password: hashedPassword, isAdmin: false 
     });
 
     const accessToken = generateAccessToken(newUser);
@@ -123,8 +123,6 @@ router.post('/refresh-token', (req, res) => {
     if (err) {
       return res.status(403).json({ error: 'Invalid refresh token' });
     }
-
- 
     const newAccessToken = generateAccessToken({ _id: user.id, email: user.email, isAdmin: user.isAdmin });
     res.json({ accessToken: newAccessToken });
   });

@@ -2,22 +2,19 @@ const express = require('express');
 const {LaptopSchema,MobileSchema,TVSchema} = require('../models/Products');
 const User = require('../models/Users');
 const jwt = require('jsonwebtoken');
-
 const {addNewModel,showAllModels, showAllModelNames,}=require('../controllers/modelController')
 const router = express.Router();
 const {
   getProductById,getAllProducts,addComment,getComments,createProductWithImage,
-  addToCart,
-  getCart,
   updateCartItemQuantity,
   viewsСounter,
-  getCartProducts,
-  getFilteredProducts,
   getProductsByCategory,
-  deleteSelectedProducts
+  deleteSelectedProducts,
+  updateMobile,
+  updateTV,
 }=require('../controllers/productControllers')
-
-
+const {addToCart,getCart,getCartProducts}=require('../controllers/secondary/cartControllers')
+const {addToWishList,getWishList,getWishListProducts}=require('../controllers/secondary/WishListControllers')
 // Middleware для проверки прав администратора
 const isAdmin = (req, res, next) => {
 console.log(req.header);
@@ -42,12 +39,16 @@ router.get('/products/:id',getProductById)
 router.post('/cart/add',addToCart)
 router.get('/cart/:userId',getCart)
 router.get('/carts/:userId',getCartProducts)
+router.post('/wish/add',addToWishList)
+router.get('/wish/:userId',getWishList)
+router.get('/wishproducts/:userId',getWishListProducts)
 router.put('/cart/update',updateCartItemQuantity)
 router.post('/:id/view', viewsСounter);
 router.get('/productsByCategory/:category',getProductsByCategory)
 router.get('/products',getAllProducts);
 router.delete('/products',deleteSelectedProducts)
-
+router.put('/products/mobile/:id',isAdmin,updateMobile)
+router.put('/products/tv/:id',isAdmin,updateTV)
 
 // // фильтр по имени
 // router.get('/products/name/:name', findProductByName);
@@ -61,20 +62,6 @@ router.delete('/products',deleteSelectedProducts)
 // router.get('/products/:id', getProductById)
 
 // // Добавить новый товар
-
-
-// // Удалить товар
-// router.delete('/products/:id', isAdmin, async (req, res) => {
-//   try {
-//     const product = await Product.findByIdAndDelete(req.params.id);
-//     if (!product) {
-//       return res.status(404).json({ error: 'Product not found' });
-//     }
-//     res.json({ message: 'Product deleted' });
-//   } catch (error) {
-//     res.status(400).json({ error: 'Error deleting product' });
-//   }
-// });
 
 // // Обновить товар
 // router.put('/products/:id', isAdmin, async (req, res) => {

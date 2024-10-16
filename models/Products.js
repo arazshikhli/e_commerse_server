@@ -13,6 +13,7 @@ const cartSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+
 const cartItemSchema = new mongoose.Schema({
   productId: { 
     type: mongoose.Schema.Types.ObjectId, 
@@ -31,11 +32,32 @@ const cartItemSchema = new mongoose.Schema({
   },
 });
 
-// Add pre-save hook to update `updatedAt` on each save
+const wishListSchema = new mongoose.Schema({
+  productId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    required: true, 
+    refPath: 'productType' 
+  },
+  productType: { 
+    type: String, 
+    required: true, 
+    enum: ['Mobile', 'TV', 'Laptop'] 
+  }
+});
+
+
+
+wishListSchema.pre('save', function (next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
 cartSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
+
+
 
 const commentSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -136,7 +158,7 @@ const MobileSchema=mongoose.model('Mobile',mobileSchema);
 const LaptopSchema=mongoose.model('Laptop',laptopSchema);
 const TVSchema=mongoose.model('TV',tvSchema)
 const Product = mongoose.model('Product', productSchema);
-module.exports = {MobileSchema,LaptopSchema,TVSchema,Product,commentSchema,CartSchema,cartItemSchema};
+module.exports = {MobileSchema,LaptopSchema,TVSchema,Product,commentSchema,CartSchema,cartItemSchema,wishListSchema};
 
 
 
