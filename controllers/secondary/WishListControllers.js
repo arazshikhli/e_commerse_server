@@ -5,6 +5,36 @@ const router = express.Router();
 const {MobileSchema,TVSchema,LaptopSchema,Cart}=require('../../models/Products')
 
 
+
+const removeFromWishList = async (req, res) => {
+  const {  productId, productType } = req.body;
+  const {userId}=req.params
+  if (!userId || !productId || !productType) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const itemIndex = user.wishList.findIndex(
+      (item) => item && item.productId.toString() === productId && item.productType === productType
+    );
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ error: 'Product not found in wish list' });
+    }
+    user.wishList.splice(itemIndex, 1);
+    await user.save();
+
+    return res.status(200).json({ message: 'Product removed from wish list', wishList: user.wishList });
+  } catch (error) {
+    console.error('Error removing from wish list:', error);
+    res.status(500).json({ error: 'Failed to remove product from wish list' });
+  }
+};
+
 const addToWishList=async(req,res)=>{
     const {userId,productId,productType}=req.body;
     console.log(userId)
@@ -112,4 +142,5 @@ const addToWishList=async(req,res)=>{
     }
   }
 
-  module.exports={addToWishList,getWishList,getWishListProducts}
+
+  module.exports={addToWishList,getWishList,getWishListProducts,removeFromWishList}

@@ -279,6 +279,7 @@ const createProductWithImage = async (req, res) => {
           const { brand, model, price, description, screenSize, resolution, stock, smartTV, comments = [] } = req.body;
           const newTV = new TVSchema({
             brand, model, price, description, imageURL:cloudinaryResponses, screenSize, resolution, stock, smartTV, comments,
+            rating: { average: 0, totalRatings: 0 },
           });
           savedProduct = await newTV.save();
           break;
@@ -288,7 +289,8 @@ const createProductWithImage = async (req, res) => {
             displayType,batteryCapacity,weight,network } = req.body;
           const newMobile = new MobileSchema({
             brand, model, price, description, imageURL:cloudinaryResponses, screenSize, ram, processor, stock, storage, comments,  battery,operatingSystem,
-            displayType,batteryCapacity,weight,network
+            displayType,batteryCapacity,weight,network,
+            rating: { average: 0, totalRatings: 0 },
           });
           savedProduct = await newMobile.save();
           break;
@@ -314,7 +316,8 @@ const createProductWithImage = async (req, res) => {
              display,
              weight,
              usb,
-             battery
+             battery,
+             rating: { average: 0, totalRatings: 0 },
           });
           savedProduct = await newLaptop.save();
           break;

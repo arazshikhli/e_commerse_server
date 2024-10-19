@@ -4,6 +4,8 @@ const User = require('../models/Users');
 const jwt = require('jsonwebtoken');
 const {addNewModel,showAllModels, showAllModelNames,}=require('../controllers/modelController')
 const router = express.Router();
+const {  getAverageRating,
+  addRatingToProduct,}=require('../controllers/secondary/ratingController')
 const {
   getProductById,getAllProducts,addComment,getComments,createProductWithImage,
   updateCartItemQuantity,
@@ -14,7 +16,7 @@ const {
   updateTV,
 }=require('../controllers/productControllers')
 const {addToCart,getCart,getCartProducts}=require('../controllers/secondary/cartControllers')
-const {addToWishList,getWishList,getWishListProducts}=require('../controllers/secondary/WishListControllers')
+const {addToWishList,getWishList,getWishListProducts,removeFromWishList}=require('../controllers/secondary/WishListControllers')
 // Middleware для проверки прав администратора
 const isAdmin = (req, res, next) => {
 console.log(req.header);
@@ -42,6 +44,7 @@ router.get('/carts/:userId',getCartProducts)
 router.post('/wish/add',addToWishList)
 router.get('/wish/:userId',getWishList)
 router.get('/wishproducts/:userId',getWishListProducts)
+router.delete('/wishproducts/:userId',removeFromWishList)
 router.put('/cart/update',updateCartItemQuantity)
 router.post('/:id/view', viewsСounter);
 router.get('/productsByCategory/:category',getProductsByCategory)
@@ -49,7 +52,8 @@ router.get('/products',getAllProducts);
 router.delete('/products',deleteSelectedProducts)
 router.put('/products/mobile/:id',isAdmin,updateMobile)
 router.put('/products/tv/:id',isAdmin,updateTV)
-
+router.post('/products/rating/:productId',addRatingToProduct)
+router.get('products/rating/:productId?categoryName=:categoryName',getAverageRating)
 // // фильтр по имени
 // router.get('/products/name/:name', findProductByName);
 

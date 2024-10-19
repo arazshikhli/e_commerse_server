@@ -91,6 +91,11 @@ const tvSchema = new mongoose.Schema({
   resolution: { type: String, required: true },
   smartTV: { type: Boolean, default: false },
   categoryName:{type:String,default:'TV'},
+  rating: {
+    average: { type: Number, default: 0 }, // Средний рейтинг
+    ratingsSum: { type: Number, default: 0 }, // Сумма всех оценок
+    totalRatings: { type: Number, default: 0 } // Количество оценок
+  },
   comments: {
     type: [commentSchema], // Определяем как массив схемы комментариев
     default: [] // Добавляем пустой массив по умолчанию
@@ -111,12 +116,15 @@ const mobileSchema = new mongoose.Schema({
   storage: { type: String, required: true },
   battery:{type:String,required:true},
   operatingSystem:{type:String,required:true},
-
   displayType:{type:String,required:true},
   batteryCapacity:{type:String,required:true},
   weight:{type:String,required:true},
   network:{type:String,required:true},
-
+  rating: {
+    average: { type: Number, default: 0 }, // Средний рейтинг
+    ratingsSum: { type: Number, default: 0 }, // Сумма всех оценок
+    totalRatings: { type: Number, default: 0 } // Количество оценок
+  },
   categoryName:{type:String,default:'Mobile'},
   comments: {
     type: [commentSchema], // Определяем как массив схемы комментариев
@@ -148,6 +156,11 @@ const laptopSchema = new mongoose.Schema({
   comments: {
     type: [commentSchema], // Определяем как массив схемы комментариев
     default: [] // Добавляем пустой массив по умолчанию
+  },
+  rating: {
+    average: { type: Number, default: 0 }, // Средний рейтинг
+    ratingsSum: { type: Number, default: 0 }, // Сумма всех оценок
+    totalRatings: { type: Number, default: 0 } // Количество оценок
   },
 });
 
