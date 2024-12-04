@@ -15,33 +15,33 @@ const cartSchema = new mongoose.Schema({
 
 
 const cartItemSchema = new mongoose.Schema({
-  productId: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    required: true, 
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
     refPath: 'productType' // Динамическая ссылка на модель в зависимости от типа продукта
   },
-  productType: { 
-    type: String, 
-    required: true, 
+  productType: {
+    type: String,
+    required: true,
     enum: ['Mobile', 'TV', 'Laptop'] // Перечисление возможных типов продуктов
   },
-  quantity: { 
-    type: Number, 
-    required: true, 
-    default: 1 
+  quantity: {
+    type: Number,
+    required: true,
+    default: 1
   },
 });
 
 const wishListSchema = new mongoose.Schema({
-  productId: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    required: true, 
-    refPath: 'productType' 
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    refPath: 'productType'
   },
-  productType: { 
-    type: String, 
-    required: true, 
-    enum: ['Mobile', 'TV', 'Laptop'] 
+  productType: {
+    type: String,
+    required: true,
+    enum: ['Mobile', 'TV', 'Laptop']
   }
 });
 
@@ -72,13 +72,14 @@ const productSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   image: { type: [String] },
   stock: { type: Number, default: 0 },
-  views: { type: Number, default: 0 }, 
-  comments: [commentSchema], 
+  views: { type: Number, default: 0 },
+  comments: [commentSchema],
   productDetails:{
     type:mongoose.Schema.Types.Mixed,
     required:true
   }
 });
+
 const tvSchema = new mongoose.Schema({
   model:{ type: String, required: true },
   brand: { type: String, required: true },
@@ -86,7 +87,7 @@ const tvSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   imageURL: { type:[ String ]},
   stock: { type: Number, default: 0 },
-  views: { type: Number, default: 0 }, 
+  views: { type: Number, default: 0 },
   screenSize: { type: String, required: true },
   resolution: { type: String, required: true },
   smartTV: { type: Boolean, default: false },
@@ -109,7 +110,7 @@ const mobileSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   imageURL: { type: [String] },
   stock: { type: Number, default: 0 },
-  views: { type: Number, default: 0 }, 
+  views: { type: Number, default: 0 },
   screenSize: { type: String, required: true },
   ram: { type: String, required: true },
   processor: { type: String, required: true },
@@ -139,19 +140,18 @@ const laptopSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   imageURL: { type: [String] },
   stock: { type: Number, default: 0 },
-  views: { type: Number, default: 0 }, 
+  views: { type: Number, default: 0 },
   screenSize: { type: String, required: true },
   ram: { type: String, required: true },
   processor: { type: String, required: true },
   storage: { type: String, required: true },
   graphicsCard:{type:String,required:true},
   operatingSystem:{type:String,required:true},
-  WiFi:{type:String,required:true},
-  webCamera:{type:String,required:true},
-  display:{type:String,required:true},
   weight:{type:String,required:true},
-  usb:{type:String,required:true},
   battery:{type:String,required:true},
+  network:{type:String,required:true},
+  batteryCapacity:{type:String,required:true},
+  displayType:{type:String,required:true},
   categoryName:{type:String,default:'Laptop'},
   comments: {
     type: [commentSchema], // Определяем как массив схемы комментариев

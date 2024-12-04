@@ -1,68 +1,97 @@
-const express = require('express');
+const express = require("express");
 // const Product = require('../models/Products');
-const User = require('../models/Users');
+const User = require("../models/Users");
 // const Cart=require('../models/Products')
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 const router = express.Router();
-const ProductModel=require('../models/ProductModel')
-const {MobileSchema,TVSchema,LaptopSchema,Cart}=require('../models/Products')
-const cloudinary = require('../config/cloudinary');
+const ProductModel = require("../models/ProductModel");
+const {
+  MobileSchema,
+  TVSchema,
+  LaptopSchema,
+  Cart,
+} = require("../models/Products");
+const cloudinary = require("../config/cloudinary");
 
-const path=require('path')
+const path = require("path");
 const getAllProducts = async (req, res) => {
   try {
-   
     const [tvs, mobiles, laptops] = await Promise.all([
-      TVSchema.find({}),     
-      MobileSchema.find({}),  
-      LaptopSchema.find({})    
+      TVSchema.find({}),
+      MobileSchema.find({}),
+      LaptopSchema.find({}),
     ]);
 
-
     const allProducts = [
-      ...tvs.map(tv => ({ ...tv.toObject(), categoryName: 'TV' })),          // Добавляем поле "categoryName" для каждого продукта
-      ...mobiles.map(mobile => ({ ...mobile.toObject(), categoryName: 'Mobile' })),
-      ...laptops.map(laptop => ({ ...laptop.toObject(), categoryName: 'Laptop' }))
+      ...tvs.map((tv) => ({ ...tv.toObject(), categoryName: "TV" })), // Добавляем поле "categoryName" для каждого продукта
+      ...mobiles.map((mobile) => ({
+        ...mobile.toObject(),
+        categoryName: "Mobile",
+      })),
+      ...laptops.map((laptop) => ({
+        ...laptop.toObject(),
+        categoryName: "Laptop",
+      })),
     ];
     res.status(200).json(allProducts);
-
   } catch (error) {
-    console.error('Ошибка при получении продуктов:', error);
-    res.status(500).json({ error: 'Ошибка при получении продуктов. Попробуйте еще раз.' });
+    console.error("Ошибка при получении продуктов:", error);
+    res
+      .status(500)
+      .json({ error: "Ошибка при получении продуктов. Попробуйте еще раз." });
   }
 };
 
-const getFilteredProducts=async(req,res)=>{
+const getFilteredProducts = async (req, res) => {};
+const refreshToken = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    return res.status(401).json({ error: "No refresh token provided" });
+  }
 
-}
-const deleteSelectedProducts=async(req,res)=>{
+  jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: "Invalid refresh token" });
+    }
+    const newAccessToken = generateAccessToken({
+      _id: user.id,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    });
+    res.json({ accessToken: newAccessToken });
+  });
+};
+const deleteSelectedProducts = async (req, res) => {
   const { ids } = req.body;
   if (!Array.isArray(ids) || ids.length === 0) {
-    return res.status(400).json({ message: 'Некорректный массив ID' });
+    return res.status(400).json({ message: "Некорректный массив ID" });
   }
   try {
-    const deletedProducts = await MobileSchema.deleteMany({ _id: { $in: ids } });
-    res.status(200).json({ message: `${deletedProducts.deletedCount} продуктов успешно удалено` });
+    const deletedProducts = await MobileSchema.deleteMany({
+      _id: { $in: ids },
+    });
+    res.status(200).json({
+      message: `${deletedProducts.deletedCount} продуктов успешно удалено`,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Ошибка сервера' });
+    res.status(500).json({ message: "Ошибка сервера" });
   }
-}
+};
 const getProductsByCategory = async (req, res) => {
   const { category } = req.params; // Извлекаем category из параметров URL
   let products;
 
-  console.log(category)
   try {
     switch (category) {
-      case 'Mobile': {
+      case "Mobile": {
         products = await MobileSchema.find({}); // Асинхронный запрос к базе данных
         break;
       }
-      case 'TV': {
+      case "TV": {
         products = await TVSchema.find({});
         break;
       }
-      case 'Laptop': {
+      case "Laptop": {
         products = await LaptopSchema.find({});
         break;
       }
@@ -72,43 +101,49 @@ const getProductsByCategory = async (req, res) => {
     }
 
     // Возвращаем результат
-    return res.status(200).json( products );
-
+    return res.status(200).json(products);
   } catch (error) {
     // Обработка ошибок
-    console.error('Ошибка при получении продуктов:', error);
-    return res.status(500).json({ message: 'Ошибка сервера. Попробуйте еще раз.' });
+    console.error("Ошибка при получении продуктов:", error);
+    return res
+      .status(500)
+      .json({ message: "Ошибка сервера. Попробуйте еще раз." });
   }
 };
-
 
 const updateCartItemQuantity = async (req, res) => {
   const { userId, productId, productType, quantity } = req.body;
 
   if (!userId || !productId || !productType || quantity === undefined) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
     // Поиск пользователя и его корзины
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     // Поиск товара в корзине пользователя
     const existingItem = user.cart.find(
-      (item) => item.productId.toString() === productId && item.productType === productType
+      (item) =>
+        item.productId.toString() === productId &&
+        item.productType === productType
     );
 
     if (!existingItem) {
-      return res.status(404).json({ error: 'Product not found in cart' });
+      return res.status(404).json({ error: "Product not found in cart" });
     }
 
     // Обновление количества товара
     if (quantity <= 0) {
       // Удаление товара из корзины, если количество меньше или равно нулю
-      user.cart = user.cart.filter(item => item.productId.toString() !== productId || item.productType !== productType);
+      user.cart = user.cart.filter(
+        (item) =>
+          item.productId.toString() !== productId ||
+          item.productType !== productType
+      );
     } else {
       // Установка нового количества
       existingItem.quantity = quantity;
@@ -117,91 +152,87 @@ const updateCartItemQuantity = async (req, res) => {
     await user.save();
     res.status(200).json(user.cart);
   } catch (error) {
-    console.error('Error updating cart item quantity:', error);
-    res.status(500).json({ error: 'Failed to update product quantity in cart. Please try again.' });
+    console.error("Error updating cart item quantity:", error);
+    res.status(500).json({
+      error: "Failed to update product quantity in cart. Please try again.",
+    });
   }
 };
 
 // Экспортируйте контроллер
-const viewsСounter=async(req,res)=>{
-  const {id,category}=req.body;
-  
+const viewsСounter = async (req, res) => {
+  const { id, category } = req.body;
+
   let productModel;
   let product;
-  try{
-    switch(category){
-      case 'TV':{
-        product=await TVSchema.findById(id);
-        if(!product)return res.status(404).json({error:'Product not found'});
-        product.views+=1;
-        await product.save()
-        console.log("view:",product.views);
-        
-        res.json({ views: product.views });
-        break;
-      }
-      case 'Mobile':{
-        product=await MobileSchema.findById(id);
-        if(!product)return res.status(404).json({error:'Product not found'});
-        product.views+=1;
+  try {
+    switch (category) {
+      case "TV": {
+        product = await TVSchema.findById(id);
+        if (!product)
+          return res.status(404).json({ error: "Product not found" });
+        product.views += 1;
         await product.save();
-        console.log("view:",product.views);
-        
         res.json({ views: product.views });
         break;
       }
-      case 'Laptop':{
-        product=await MobileSchema.findById(id);
-        if(!product)return res.status(404).json({error:'Product not found'});
-        product.views+=1;
-        await product.save()
-        console.log("view:",product.views);
-        
+      case "Mobile": {
+        product = await MobileSchema.findById(id);
+        if (!product)
+          return res.status(404).json({ error: "Product not found" });
+        product.views += 1;
+        await product.save();
+
+        res.json({ views: product.views });
+        break;
+      }
+      case "Laptop": {
+        product = await LaptopSchema.findById(id);
+        if (!product)
+          return res.status(404).json({ error: "Product not found" });
+        product.views += 1;
+        await product.save();
+
         res.json({ views: product.views });
         break;
       }
     }
+  } catch (error) {
+    res.status(400).json({ error: "Error updating views" });
   }
- catch (error) {
-    res.status(400).json({ error: 'Error updating views' });
-  }
-}
+};
 const addComment = async (req, res) => {
   const { model, productType, user, commentText } = req.body;
-  console.log("model: ",model);
-  
+
   try {
     let productModel;
     switch (productType) {
-      case 'TV':
+      case "TV":
         productModel = TVSchema;
         break;
-      case 'Mobile':
+      case "Mobile":
         productModel = MobileSchema;
         break;
-      case 'Laptop':
+      case "Laptop":
         productModel = LaptopSchema;
         break;
       default:
-        return res.status(400).json({ error: 'Invalid product type' });
+        return res.status(400).json({ error: "Invalid product type" });
     }
 
-    console.log('email:',user);
-    
-    
     const userData = await User.findOne({ email: user });
     if (!userData) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const product = await productModel.findOne({model:model});
-    console.log("model:comment:",model)
+    const product = await productModel.findOne({ model: model });
+
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+      return res.status(404).json({ error: "Product not found" });
     }
 
     const newComment = {
-      user:userData,
+      user: userData,
       comment: commentText,
       createdAt: new Date(),
     };
@@ -211,8 +242,8 @@ const addComment = async (req, res) => {
 
     res.status(200).json(product);
   } catch (error) {
-    console.error('Error adding comment:', error);
-    res.status(500).json({ error: 'Failed to add comment. Please try again.' });
+    console.error("Error adding comment:", error);
+    res.status(500).json({ error: "Failed to add comment. Please try again." });
   }
 };
 
@@ -222,129 +253,195 @@ const getComments = async (req, res) => {
   try {
     let productModel;
     switch (productType) {
-      case 'TV':
+      case "TV":
         productModel = TVSchema;
         break;
-      case 'Mobile':
+      case "Mobile":
         productModel = MobileSchema;
         break;
-      case 'Laptop':
+      case "Laptop":
         productModel = LaptopSchema;
         break;
       default:
-        return res.status(400).json({ error: 'Invalid product type' });
+        return res.status(400).json({ error: "Invalid product type" });
     }
 
-
-    const product = await productModel.findOne({ model:model });
+    const product = await productModel.findOne({ model: model });
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+      return res.status(404).json({ error: "Product not found" });
     }
 
-   
     res.status(200).json(product.comments);
   } catch (error) {
-    console.error('Error retrieving comments:', error);
-    res.status(500).json({ error: 'Failed to retrieve comments. Please try again.' });
+    console.error("Error retrieving comments:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to retrieve comments. Please try again." });
   }
 };
 
 const createProductWithImage = async (req, res) => {
-  const { categoryName,images } = req.body;
-  
+  const { categoryName, images } = req.body;
+
   let savedProduct;
-  let cloudinaryResponses=[];
+  let cloudinaryResponses = [];
   try {
-    if(Array.isArray(images)&& images.length>0){
- 
-      for( const image of images){
-        try{
-          const cloudinaryResponse=await cloudinary.uploader.upload(image,{folder:'products'});
-          cloudinaryResponses.push(cloudinaryResponse.secure_url)
-        }
-        catch(err){
-            console.log("Error uploading image");
-            return res.status(500).json({
-              message:"Image upload failed",
-              error:err.message|| "unknow error"
-            })
-        } 
-      }
-     }
-
-  
-
-      switch (categoryName) {
-        case 'TV': {
-          const { brand, model, price, description, screenSize, resolution, stock, smartTV, comments = [] } = req.body;
-          const newTV = new TVSchema({
-            brand, model, price, description, imageURL:cloudinaryResponses, screenSize, resolution, stock, smartTV, comments,
-            rating: { average: 0, totalRatings: 0 },
+    if (Array.isArray(images) && images.length > 0) {
+      for (const image of images) {
+        try {
+          const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+            folder: "products",
           });
-          savedProduct = await newTV.save();
-          break;
-        }
-        case 'Mobile': {
-          const { brand, model, storage, price, description, screenSize, ram, processor, stock, comments = [],  battery,operatingSystem,
-            displayType,batteryCapacity,weight,network } = req.body;
-          const newMobile = new MobileSchema({
-            brand, model, price, description, imageURL:cloudinaryResponses, screenSize, ram, processor, stock, storage, comments,  battery,operatingSystem,
-            displayType,batteryCapacity,weight,network,
-            rating: { average: 0, totalRatings: 0 },
+          cloudinaryResponses.push(cloudinaryResponse.secure_url);
+        } catch (err) {
+          console.log("Error uploading image");
+          return res.status(500).json({
+            message: "Image upload failed",
+            error: err.message || "unknow error",
           });
-          savedProduct = await newMobile.save();
-          break;
-        }
-        case 'Laptop': {
-          const { brand, model, storage, price, description,
-             screenSize, ram, processor, graphicsCard,
-             stock, comments = [],
-            operatingSystem,
-            WiFi,
-            webCamera,
-            display,
-            weight,
-            usb,
-            battery
-            } = req.body;
-          const newLaptop = new LaptopSchema({
-            brand, model, price, description, imageURL:cloudinaryResponses,
-             screenSize, ram, processor, storage, graphicsCard, stock, comments,
-             operatingSystem,
-             WiFi,
-             webCamera,
-             display,
-             weight,
-             usb,
-             battery,
-             rating: { average: 0, totalRatings: 0 },
-          });
-          savedProduct = await newLaptop.save();
-          break;
         }
       }
+    }
 
-      res.status(201).json({message:'Product added successfully'});
+    switch (categoryName) {
+      case "TV": {
+        const {
+          brand,
+          model,
+          price,
+          description,
+          screenSize,
+          resolution,
+          stock,
+          smartTV,
+          comments = [],
+        } = req.body;
+        const newTV = new TVSchema({
+          brand,
+          model,
+          price,
+          description,
+          imageURL: cloudinaryResponses,
+          screenSize,
+          resolution,
+          stock,
+          smartTV,
+          comments,
+          rating: { average: 0, totalRatings: 0 },
+        });
+        savedProduct = await newTV.save();
+        break;
+      }
+      case "Mobile": {
+        const {
+          brand,
+          model,
+          storage,
+          price,
+          description,
+          screenSize,
+          ram,
+          processor,
+          stock,
+          comments = [],
+          battery,
+          operatingSystem,
+          displayType,
+          batteryCapacity,
+          weight,
+          network,
+        } = req.body;
+        const newMobile = new MobileSchema({
+          brand,
+          model,
+          price,
+          description,
+          imageURL: cloudinaryResponses,
+          screenSize,
+          ram,
+          processor,
+          stock,
+          storage,
+          comments,
+          battery,
+          operatingSystem,
+          displayType,
+          batteryCapacity,
+          weight,
+          network,
+          rating: { average: 0, totalRatings: 0 },
+        });
+        savedProduct = await newMobile.save();
+        break;
+      }
+      case "Laptop": {
+        const {
+          brand,
+          model,
+          storage,
+          price,
+          description,
+          screenSize,
+          ram,
+          processor,
+          graphicsCard,
+          displayType,
+          stock,
+          comments = [],
+          operatingSystem,
+          batteryCapacity,
+          network,
+          weight,
+          battery,
+        } = req.body;
+        const newLaptop = new LaptopSchema({
+          brand,
+          model,
+          price,
+          description,
+          imageURL: cloudinaryResponses,
+          screenSize,
+          ram,
+          processor,
+          storage,
+          graphicsCard,
+          stock,
+          comments,
+          displayType,
+          operatingSystem,
+          batteryCapacity,
+          network,
+          weight,
+          battery,
+          rating: { average: 0, totalRatings: 0 },
+        });
+        savedProduct = await newLaptop.save();
+        break;
+      }
+    }
 
+    res.status(201).json({ message: "Product added successfully" });
   } catch (error) {
-    console.error('Ошибка при создании продукта:', error);
-    res.status(500).json({ error: 'Ошибка при создании продукта. Попробуйте еще раз.' });
+    console.error("Ошибка при создании продукта:", error);
+    res
+      .status(500)
+      .json({ error: "Ошибка при создании продукта. Попробуйте еще раз." });
   }
 };
 const getProductById = async (req, res) => {
   const { id } = req.params;
-  
+
   try {
     // Получаем данные из всех коллекций параллельно
     const [tv, mobile, laptop] = await Promise.all([
-      TVSchema.findById(id),       // Получаем продукт TV по ID
-      MobileSchema.findById(id),   // Получаем мобильный продукт по ID
-      LaptopSchema.findById(id)    // Получаем ноутбук по ID
+      TVSchema.findById(id), // Получаем продукт TV по ID
+      MobileSchema.findById(id), // Получаем мобильный продукт по ID
+      LaptopSchema.findById(id), // Получаем ноутбук по ID
     ]);
-    
+
     // Проверяем, существует ли продукт в одной из коллекций
     if (!tv && !mobile && !laptop) {
-      return res.status(404).json({ error: 'Product not found' });
+      return res.status(404).json({ error: "Product not found" });
     }
 
     // Возвращаем найденный продукт
@@ -356,43 +453,48 @@ const getProductById = async (req, res) => {
       return res.json(laptop);
     }
   } catch (error) {
-    console.error('Error fetching product by ID:', error);
-    return res.status(400).json({ error: 'Error fetching product by ID' });
+    console.error("Error fetching product by ID:", error);
+    return res.status(400).json({ error: "Error fetching product by ID" });
   }
 };
-const updateMobile=async(req,res)=>{
-  const idFromParams=req.params.id;
-  const mobile=req.body
-  console.log("mobile: ",mobile)
+const updateMobile = async (req, res) => {
+  const idFromParams = req.params.id;
+  const mobile = req.body;
+
   try {
-    const updatedMobile=await MobileSchema.findByIdAndUpdate(idFromParams,mobile,{new:true})
+    const updatedMobile = await MobileSchema.findByIdAndUpdate(
+      idFromParams,
+      mobile,
+      { new: true }
+    );
     if (!updatedMobile) {
-             return res.status(404).json({ error: 'Product not found' });
-          }
-          res.json(updatedMobile)
+      return res.status(404).json({ error: "Product not found" });
+    }
+    res.json(updatedMobile);
   } catch (error) {
-    res.status(400).json({ error: 'Error updating product' });
+    res.status(400).json({ error: "Error updating product" });
   }
-}
+};
 
-const updateTV=async(req,res)=>{
-  const idFromParams=req.params.id;
-  const tv=req.body
-  console.log("mobile: ",tv)
+const updateTV = async (req, res) => {
+  const idFromParams = req.params.id;
+  const tv = req.body;
   try {
-    const updatedTV=await TVSchema.findByIdAndUpdate(idFromParams,tv,{new:true})
+    const updatedTV = await TVSchema.findByIdAndUpdate(idFromParams, tv, {
+      new: true,
+    });
     if (!updatedTV) {
-             return res.status(404).json({ error: 'TV not found' });
-          }
-          res.json(updatedTV)
+      return res.status(404).json({ error: "TV not found" });
+    }
+    res.json(updatedTV);
   } catch (error) {
-    res.status(400).json({ error: 'Error updating TV' });
+    res.status(400).json({ error: "Error updating TV" });
   }
-}
-
+};
 
 module.exports = {
-  getAllProducts,addComment,
+  getAllProducts,
+  addComment,
   getComments,
   createProductWithImage,
   getProductById,
@@ -402,4 +504,5 @@ module.exports = {
   deleteSelectedProducts,
   updateMobile,
   updateTV,
+  refreshToken,
 };
